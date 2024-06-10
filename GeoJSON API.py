@@ -1,7 +1,7 @@
 import urllib.request, urllib.parse
 import json, ssl
+import re
 
-# Heavily rate limited proxy of https://www.geoapify.com/ api
 serviceurl = 'https://py4e-data.dr-chuck.net/opengeo?'
 
 # Ignore SSL certificate errors
@@ -26,24 +26,22 @@ while True:
 
     try:
         js = json.loads(data)
+        print()
+
     except:
         js = None
 
     if not js or 'plus_code' not in js:
-        print('==== Download error ===')
-        print(data)
-        break
+        print()
+    line = data
 
-    plus_code = js['plus_code']
-    print('Plus code:', plus_code)
+    pattern = r'"plus_code":"([^"]+)"'
 
-    if len(js['features']) == 0:
-        print('==== Object not found ====')
-        print(data)
-        break
+    match = re.search(pattern, line)
 
-    lat = js['features'][0]['properties']['lat']
-    lon = js['features'][0]['properties']['lon']
-    print('lat', lat, 'lon', lon)
-    location = js['features'][0]['properties']['formatted']
-    print(location)
+    if match:
+        plus_code_short = match.group(1)
+        print("Plus Code :", plus_code_short)
+    else:
+        print("Plus Code Short not found.")
+    break
